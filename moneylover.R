@@ -17,13 +17,15 @@ for (i in 1:length(year)){
 # prijmy <- cost_list[[k]]
 income_list <- list()
 expenses_list <- list()
-export_data_group <- data.frame()
-export_data_nogroup <- data.frame()
+income_export_data_nogroup <- data.frame()
+expense_export_data_group <- data.frame()
+expense_export_data_nogroup <- data.frame()
 
 bills <- c("Voda","Plyn","Elektřina","Pronájmy","Telefon","Televize","Internet")
 car <- c("Parkovací poplatky","Benzín","Údržba")
 shopping <- c("Oblečení","Elektronika","Příslušentsví domácnosti","Obuv","Noviny a časopisy","Drogerie")
 fun <- c("Filmy","Hry","Gembl","Přednášky","Divadlo","Lístky na sport")
+travelling <- c("Letenky","Ubytování","Zájezd","Jízdenky")
 gifts <- c("Manželství","Charita","Pohřeb","Dárky & dary")
 family <- c("Děti & miminka","Vylepšení domácnosti","Domácí služby","Domácí zvířata")
 health <- c("Sporty","Lékárna","Osobní péče","Doktor")
@@ -39,10 +41,17 @@ for (k in 1:length(cost_list)){
   income_cat <- subset(category, category$x > 0)
   expenses_cat <- subset(category, category$x < 0)
   
+#   income_list["Příjmy"] <- list(income_cat) --not neccessary because there are no groupped categories yet
+  
+  income_export_nogroup1 <- t(income_cat[,2:ncol(income_cat)])
+  colnames(income_export_nogroup1) <- income_cat[,1]  
+  income_export_data_nogroup <- rbind.fill(income_export_data_nogroup,as.data.frame(income_export_nogroup1))
+  
   expenses_list["Účty"] <- list(subset(expenses_cat, expenses_cat$Category %in% bills == T))
   expenses_list["Auto"] <- list(subset(expenses_cat, expenses_cat$Category %in% car == T))
   expenses_list["Nakupování"] <- list(subset(expenses_cat, expenses_cat$Category %in% shopping == T))
   expenses_list["Zábava"] <- list(subset(expenses_cat, expenses_cat$Category %in% fun == T))
+  expenses_list["Cestování"] <- list(subset(expenses_cat, expenses_cat$Category %in% travelling == T))
   expenses_list["Dárky"] <- list(subset(expenses_cat, expenses_cat$Category %in% gifts == T))
   expenses_list["Rodina"] <- list(subset(expenses_cat, expenses_cat$Category %in% family == T))
   expenses_list["Zdraví"] <- list(subset(expenses_cat, expenses_cat$Category %in% health == T))
@@ -52,39 +61,44 @@ for (k in 1:length(cost_list)){
                                      expenses_cat$Category %in% expenses_list$Auto$Category |
                                      expenses_cat$Category %in% expenses_list$Nakupování$Category |
                                      expenses_cat$Category %in% expenses_list$Zábava$Category |
+                                     expenses_cat$Category %in% expenses_list$Cestování$Category |
                                      expenses_cat$Category %in% expenses_list$Dárky$Category |
                                      expenses_cat$Category %in% expenses_list$Rodina$Category |
                                      expenses_cat$Category %in% expenses_list$Zdraví$Category |
                                      expenses_cat$Category %in% expenses_list$Vzdělání$Category |
                                      expenses_cat$Category %in% expenses_list$Doprava$Category),])
+  expense_list_len <- length(expenses_list)
   
-  group_expense <- data.frame(names(expenses_list[1:9]),c(sum(expenses_list[[1]]$x),sum(expenses_list[[2]]$x),sum(expenses_list[[3]]$x),
-                                   sum(expenses_list[[4]]$x),sum(expenses_list[[5]]$x),sum(expenses_list[[6]]$x),
-                                   sum(expenses_list[[7]]$x),sum(expenses_list[[8]]$x),sum(expenses_list[[9]]$x)))
+  group_expense <- data.frame(names(expenses_list[1:expense_list_len-1]),c(sum(expenses_list[[1]]$x),sum(expenses_list[[2]]$x),
+                                    sum(expenses_list[[3]]$x),sum(expenses_list[[4]]$x),sum(expenses_list[[5]]$x),
+                                    sum(expenses_list[[6]]$x),sum(expenses_list[[7]]$x),sum(expenses_list[[8]]$x),
+                                    sum(expenses_list[[9]]$x),sum(expenses_list[[10]]$x)))
   names(group_expense) <- c("Category","x")
-  export_group <- rbind(group_expense,expenses_list[[10]])
+  expense_export_group <- rbind(group_expense,expenses_list[[expense_list_len]])
   
-  export_group1 <- t(export_group[,2:ncol(export_group)])
-  colnames(export_group1) <- export_group[,1]
-  export_data_group <- rbind.fill(export_data_group,as.data.frame(export_group1))
+  expense_export_group1 <- t(expense_export_group[,2:ncol(expense_export_group)])
+  colnames(expense_export_group1) <- expense_export_group[,1]
+  expense_export_data_group <- rbind.fill(expense_export_data_group,as.data.frame(expense_export_group1))
   
-  export_nogroup1 <- t(expenses_cat[,2:ncol(expenses_cat)])
-  colnames(export_nogroup1) <- expenses_cat[,1]  
-  export_data_nogroup <- rbind.fill(export_data_nogroup,as.data.frame(export_nogroup1))
+  expense_export_nogroup1 <- t(expenses_cat[,2:ncol(expenses_cat)])
+  colnames(expense_export_nogroup1) <- expenses_cat[,1]  
+  expense_export_data_nogroup <- rbind.fill(expense_export_data_nogroup,as.data.frame(expense_export_nogroup1))
 }
-export_data_group <- cbind(names(cost_list),export_data_group)
-colnames(export_data_group)[1] <- "Datum"
-export_data_nogroup <- cbind(names(cost_list),export_data_nogroup)
-colnames(export_data_nogroup)[1] <- "Datum"
-export_data_group[is.na(export_data_group)] <- 0
-export_data_nogroup[is.na(export_data_nogroup)] <- 0
-write.table(export_data_group,file="expenses_grouped.csv",sep=";",row.names=F)
-write.table(export_data_nogroup,file="expenses_nogroup.csv",sep=";",row.names=F)
-
-
-income_list["Příjmy"] <- list(income_cat)
-
-
+# adding column with date
+income_export_data_nogroup <- cbind(names(cost_list),income_export_data_nogroup)
+colnames(income_export_data_nogroup)[1] <- "Datum"
+expense_export_data_group <- cbind(names(cost_list),expense_export_data_group)
+colnames(expense_export_data_group)[1] <- "Datum"
+expense_export_data_nogroup <- cbind(names(cost_list),expense_export_data_nogroup)
+colnames(expense_export_data_nogroup)[1] <- "Datum"
+# replacing NA with 0
+income_export_data_nogroup[is.na(income_export_data_nogroup)] <- 0
+expense_export_data_group[is.na(expense_export_data_group)] <- 0
+expense_export_data_nogroup[is.na(expense_export_data_nogroup)] <- 0
+# exporting .csv file with results
+write.table(income_export_data_nogroup,file="income_nogrouped.csv",sep=";",row.names=F)
+write.table(expense_export_data_group,file="expenses_grouped.csv",sep=";",row.names=F)
+write.table(expense_export_data_nogroup,file="expenses_nogroup.csv",sep=";",row.names=F)
 # Pie Chart with Percentages
 slices <- abs(c(group_expense$Účty,group_expense$Auto,group_expense$Nakupovaní,
                 group_expense$Zábava,group_expense$Dárky,group_expense$Rodina,
