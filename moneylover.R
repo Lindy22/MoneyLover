@@ -6,7 +6,7 @@ money_data$Datum <- as.POSIXlt(money_data$Datum)
 
 month <- sort(unique(money_data$Datum$mo))
 year <- sort(unique(money_data$Datum$year))
-name_df <- paste(month+1,year+1900,sep="_")
+name_df <- paste(year+1900,sprintf("%02d",month+1),sep="_")
 
 for (i in 1:length(year)){
   for (j in 1:length(month)){
