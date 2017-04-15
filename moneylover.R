@@ -1,18 +1,14 @@
 library(plyr)
 
-money_data <- read.csv("..\\MoneyLover.csv",sep=";",dec=".",as.is=T,header=T)
+money_data <- read.csv("...\\MoneyLover.csv",sep=";",dec=".",as.is=T,header=T)
 cost_list <- list()
 money_data$Datum <- as.Date(money_data$Datum,"%d.%m.%Y")
 money_data$Datum <- as.POSIXlt(money_data$Datum)
 
-month <- sort(unique(money_data$Datum$mo))
-year <- sort(unique(money_data$Datum$year))
-name_df <- paste(year+1900,sprintf("%02d",month+1),sep="_")
-
-for (i in 1:length(year)){
-  for (j in 1:length(month)){
-    cost_list[name_df[j]] <- list(subset(money_data,money_data$Datum$mo == month[j] & money_data$Datum$year == year[i]))
-  }
+name_df <- rev(unique(paste(money_data$Datum$year+1900,money_data$Datum$mo+1,sep="_")))
+for (j in 1:length(name_df)){
+  date_split <- strsplit(name_df[j],"_")
+  cost_list[name_df[j]] <- list(subset(money_data,money_data$Datum$mo+1 == as.integer(date_split[[1]][2]) & money_data$Datum$year+1900 == as.integer(date_split[[1]][1])))
 }
 
 # prijmy <- cost_list[[k]]
@@ -33,9 +29,10 @@ gifts <- c("Manželství","Charita","Pohřeb","Dárky & dary")
 family <- c("Děti & miminka","Vylepšení domácnosti","Domácí služby","Domácí zvířata")
 health <- c("Sporty","Lékárna","Osobní péče","Doktor")
 education <- c("Knihy","Vzdělání")
-transport <- c("Taxi","MHD","Autobus")
+transport <- c("Taxi","MHD","Autobus","Vlak")
 
 for (k in 1:length(cost_list)){
+  if (nrow(cost_list[[k]]) == 0) next
   month_money <- cost_list[[k]]
   income <- sum(month_money$Částka[which(month_money$Částka > 0)])
   expenses<- sum(month_money$Částka[which(month_money$Částka < 0)])
@@ -134,7 +131,7 @@ for (k in 1:length(cost_list)){
   lbls <- paste(lbls, pct) # add percents to labels 
   lbls <- paste(lbls,"%",sep="") # ad % to labels 
   pie(slices,labels = lbls, col=rainbow(length(lbls)),
-      main="Měsíční náklady")
+      main="Měsíční příjmy")
   dev.off()  
 }
 # adding column with date
