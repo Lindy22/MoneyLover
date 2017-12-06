@@ -92,47 +92,50 @@ for (k in 1:length(cost_list)){
   expense_export_data_nogroup <- rbind.fill(expense_export_data_nogroup,as.data.frame(expense_export_nogroup1))
   
   # Pie Chart with Percentages
-  png(filename=paste("Rozdělení výdajů za období ", names(cost_list[k]),".png", sep=""),width = 960, height = 960, units = "px")
-  slices <- abs(c(sum(expenses_list$Účty$x),sum(expenses_list$Auto$x),sum(expenses_list$Nakupovaní$x),
-                  sum(expenses_list$Zábava$x),sum(expenses_list$Cestování$x),sum(expenses_list$Dárky$x),
-                  sum(expenses_list$Rodina$x),sum(expenses_list$Zdraví$x),sum(expenses_list$Vzdělání$x),
-                  sum(expenses_list$Doprava$x),expenses_list$Ostatní$x))
-  lbls <- c(names(expenses_list)[1:expense_list_len-1],expenses_list$Ostatní$Category) #names(expenses_list)[1:9], protože nechci tu poslední kategorii
-  pct <- round(slices/sum(slices)*100)
-  if (any(pct <=1) == T) {
-    rest_cumul <- sum(slices[which(pct <=  1)]) # součet malych polozek (mensich nebo rovno 1% z mesicnich nakladu)
-    slices <- slices[-which(pct <=  1)]
-    slices <- c(slices,rest_cumul)
-    lbls <- lbls[-which(pct <=  1)]
-    lbls <- c(lbls,"Zbytek")
-    pct <- pct[-which(pct <=  1)]
-    pct <- c(pct,round(rest_cumul/sum(slices)*100))
+  if (length(expenses_cat$x) > 0) {
+    png(filename=paste("Rozdělení výdajů za období ", names(cost_list[k]),".png", sep=""),width = 960, height = 960, units = "px")
+    slices <- abs(c(sum(expenses_list$Účty$x),sum(expenses_list$Auto$x),sum(expenses_list$Nakupovaní$x),
+                    sum(expenses_list$Zábava$x),sum(expenses_list$Cestování$x),sum(expenses_list$Dárky$x),
+                    sum(expenses_list$Rodina$x),sum(expenses_list$Zdraví$x),sum(expenses_list$Vzdělání$x),
+                    sum(expenses_list$Doprava$x),expenses_list$Ostatní$x))
+    lbls <- c(names(expenses_list)[1:expense_list_len-1],expenses_list$Ostatní$Category) #names(expenses_list)[1:9], protože nechci tu poslední kategorii
+    pct <- round(slices/sum(slices)*100)
+    if (any(pct <=1) == T) {
+      rest_cumul <- sum(slices[which(pct <=  1)]) # součet malych polozek (mensich nebo rovno 1% z mesicnich nakladu)
+      slices <- slices[-which(pct <=  1)]
+      slices <- c(slices,rest_cumul)
+      lbls <- lbls[-which(pct <=  1)]
+      lbls <- c(lbls,"Zbytek")
+      pct <- pct[-which(pct <=  1)]
+      pct <- c(pct,round(rest_cumul/sum(slices)*100))
+    }
+    lbls <- paste(lbls, pct) # add percents to labels 
+    lbls <- paste(lbls,"%",sep="") # ad % to labels 
+    pie(slices,labels = lbls, col=rainbow(length(lbls)),
+        main="Měsíční náklady")
+    dev.off()  
   }
-  lbls <- paste(lbls, pct) # add percents to labels 
-  lbls <- paste(lbls,"%",sep="") # ad % to labels 
-  pie(slices,labels = lbls, col=rainbow(length(lbls)),
-      main="Měsíční náklady")
-  dev.off()  
-  
   # Pie Chart with Percentages
-  png(filename=paste("Rozdělení příjmů za období ", names(cost_list[k]),".png", sep=""),width = 960, height = 960, units = "px")
-  slices <- income_cat$x
-  lbls <- income_cat$Category #names(expenses_list)[1:9], protože nechci tu poslední kategorii
-  pct <- round(slices/sum(slices)*100)
-  if (any(pct <=1) == T) {
-    rest_cumul <- sum(slices[which(pct <=  1)]) # součet malych polozek (mensich nebo rovno 1% z mesicnich nakladu)
-    slices <- slices[-which(pct <=  1)]
-    slices <- c(slices,rest_cumul)
-    lbls <- lbls[-which(pct <=  1)]
-    lbls <- c(lbls,"Zbytek")
-    pct <- pct[-which(pct <=  1)]
-    pct <- c(pct,round(rest_cumul/sum(slices)*100))
+  if (length(income_cat$x) > 0) {
+    png(filename=paste("Rozdělení příjmů za období ", names(cost_list[k]),".png", sep=""),width = 960, height = 960, units = "px")
+    slices <- income_cat$x
+    lbls <- income_cat$Category #names(expenses_list)[1:9], protože nechci tu poslední kategorii
+    pct <- round(slices/sum(slices)*100)
+    if (any(pct <=1) == T) {
+      rest_cumul <- sum(slices[which(pct <=  1)]) # součet malych polozek (mensich nebo rovno 1% z mesicnich nakladu)
+      slices <- slices[-which(pct <=  1)]
+      slices <- c(slices,rest_cumul)
+      lbls <- lbls[-which(pct <=  1)]
+      lbls <- c(lbls,"Zbytek")
+      pct <- pct[-which(pct <=  1)]
+      pct <- c(pct,round(rest_cumul/sum(slices)*100))
+    }
+    lbls <- paste(lbls, pct) # add percents to labels 
+    lbls <- paste(lbls,"%",sep="") # ad % to labels 
+    pie(slices,labels = lbls, col=rainbow(length(lbls)),
+        main="Měsíční příjmy")
+    dev.off()  
   }
-  lbls <- paste(lbls, pct) # add percents to labels 
-  lbls <- paste(lbls,"%",sep="") # ad % to labels 
-  pie(slices,labels = lbls, col=rainbow(length(lbls)),
-      main="Měsíční příjmy")
-  dev.off()  
 }
 # adding column with date
 income_export_data_nogroup <- cbind(names(cost_list),income_export_data_nogroup)
